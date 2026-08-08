@@ -4,10 +4,10 @@ Program AI sederhana untuk mendeteksi apakah suatu pesan teks termasuk **SPAM** 
 
 ## Identitas
 
-- Nama   : [ISI NAMA KAMU]
-- NIM    : [ISI NIM KAMU]
-- Jurusan: [ISI JURUSAN KAMU]
-- Semester: [ISI SEMESTER KAMU]
+- Nama   : ABDULLAH SAFI'I ATTAHIRI
+- NIM    : 24120120004
+- Jurusan: SISTEM INFORMASI
+- Semester: 4
 
 ## Deskripsi Project
 
