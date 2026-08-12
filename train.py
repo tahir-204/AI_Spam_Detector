@@ -1,56 +1,63 @@
 """
-train.py
---------
-Script untuk melatih model AI Spam Detector.
-Model belajar membedakan pesan SPAM dan HAM (bukan spam) dari data teks.
+train.py - Tahap BELAJAR (AI Spam Detector)
+============================================
+Sesi 6 & 8 modul: Embedding + Vector Search.
 
-Cara pakai:
-    python train.py
+Ide besarnya: tiap kalimat diubah jadi VEKTOR ANGKA 384 dimensi
+(embedding). Kalimat yang maknanya mirip akan punya vektor yang
+berdekatan. Di sini kita ubah semua contoh di dataset jadi vektor,
+lalu simpan ke file supaya nanti dipakai untuk menebak (predict.py).
+
+Jalankan:  python train.py
 """
 
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.metrics import accuracy_score, classification_report
-import joblib
-import os
+import csv
+import pickle
 
-# 1. Load dataset
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    print("Pustaka belum lengkap. Jalankan dulu:")
+    print("   pip install -r requirements.txt")
+    raise SystemExit(1)
+
 DATA_PATH = "data/dataset.csv"
-df = pd.read_csv(DATA_PATH)
+MODEL_NAME = "all-MiniLM-L6-v2"   # model kecil, jalan di CPU
+OUTPUT = "model_data.pkl"
 
-print(f"Total data: {len(df)}")
-print(df["label"].value_counts())
 
-# 2. Pisahkan fitur (teks) dan label (spam/ham)
-X = df["text"]
-y = df["label"]
+def baca_dataset(path):
+    """Baca CSV jadi dua list: kalimat dan labelnya."""
+    teks, label = [], []
+    with open(path, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for baris in reader:
+            teks.append(baris["teks"])
+            label.append(baris["label"])
+    return teks, label
 
-# 3. Split data jadi data latih (train) dan data uji (test)
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y
-)
 
-# 4. Ubah teks menjadi angka (vectorisasi) pakai TF-IDF
-vectorizer = TfidfVectorizer()
-X_train_vec = vectorizer.fit_transform(X_train)
-X_test_vec = vectorizer.transform(X_test)
+def main():
+    print("Membaca dataset...")
+    teks, label = baca_dataset(DATA_PATH)
+    print(f"   {len(teks)} contoh dimuat.")
 
-# 5. Latih model Naive Bayes (algoritma klasik untuk klasifikasi teks)
-model = MultinomialNB()
-model.fit(X_train_vec, y_train)
+    # Sesi 3-6: memuat model lalu mengubah teks -> vektor (embedding).
+    # Saat PERTAMA dijalankan, model (~80MB) diunduh otomatis. Wajar
+    # kalau agak lama 1-2 menit, itu bukan error.
+    print("Memuat model embedding (unduh otomatis saat pertama kali)...")
+    model = SentenceTransformer(MODEL_NAME)
 
-# 6. Evaluasi model
-y_pred = model.predict(X_test_vec)
-acc = accuracy_score(y_test, y_pred)
-print(f"\nAkurasi model: {acc * 100:.2f}%")
-print("\nLaporan klasifikasi:")
-print(classification_report(y_test, y_pred))
+    print("Mengubah semua contoh menjadi vektor...")
+    vektor = model.encode(teks, show_progress_bar=True)
 
-# 7. Simpan model dan vectorizer supaya bisa dipakai lagi tanpa training ulang
-os.makedirs("models", exist_ok=True)
-joblib.dump(model, "models/spam_model.pkl")
-joblib.dump(vectorizer, "models/vectorizer.pkl")
+    # Simpan vektor + label. Inilah "hasil belajar" AI kita.
+    with open(OUTPUT, "wb") as f:
+        pickle.dump({"vektor": vektor, "label": label, "teks": teks}, f)
 
-print("\nModel berhasil disimpan di folder 'models/'")
+    print(f"\nSelesai! Hasil belajar disimpan di '{OUTPUT}'.")
+    print("Lanjut jalankan:  python predict.py")
+
+
+if __name__ == "__main__":
+    main()

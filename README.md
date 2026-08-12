@@ -1,61 +1,56 @@
 # AI Spam Detector
 
-Program AI sederhana untuk mendeteksi apakah suatu pesan teks termasuk **SPAM** atau **HAM (bukan spam)**, menggunakan metode *Machine Learning* klasik: **TF-IDF Vectorization** dan **Naive Bayes Classifier**.
+Proyek PAS mata kuliah **AI Computing Platform** — Sistem Informasi, STIKOM Cipta Karya Informatika.
 
 ## Identitas
 
-- Nama   : ABDULLAH SAFI'I ATTAHIRI
-- NIM    : 24120120004
-- Jurusan: SISTEM INFORMASI
-- Semester: 4
+- **Nama** : Abdullah Safi'i Attahiri
+- **NIM** : 24120120004
+- **Jurusan** : Sistem Informasi
 
-## Deskripsi Project
+## Apa Ini?
 
-Model AI ini dilatih menggunakan dataset teks berlabel (spam / ham). Model mempelajari pola kata yang sering muncul pada pesan spam (seperti "gratis", "klik link", "menangkan", dll), lalu digunakan untuk memprediksi label pesan baru.
+Program AI sederhana yang membedakan pesan **SPAM** dan **BUKAN SPAM**.
+Teknik yang dipakai: **Embedding + Cosine Similarity** — sesuai materi
+kuliah Sesi 6 (Embedding) dan Sesi 8 (Vector Search).
 
-## Struktur Folder
+## Cara Kerja (Singkat)
+
+1. Setiap kalimat diubah menjadi **vektor angka 384 dimensi** (embedding).
+   Kalimat yang maknanya mirip punya vektor yang berdekatan.
+2. Untuk menebak pesan baru, program mencari contoh yang **paling mirip
+   maknanya** menggunakan **Cosine Similarity**.
+3. Label dari contoh termirip itulah jawabannya (SPAM / BUKAN).
+
+Beda dengan Machine Learning klasik yang cuma menghitung kata, pendekatan
+ini menangkap **makna** kalimat — jadi lebih dekat ke cara kerja AI
+generatif (RAG) yang dipelajari di kuliah.
+
+## Struktur File
 
 ```
-spam_detector/
-├── data/
-│   └── dataset.csv        # Dataset contoh (teks + label)
-├── models/                 # Model hasil training disimpan di sini (otomatis dibuat)
-├── train.py                # Script untuk melatih model
-├── predict.py               # Script untuk mencoba model
-├── requirements.txt         # Daftar library yang dibutuhkan
-└── README.md
+AI_Spam_Detector/
+├── data/dataset.csv    # contoh pesan berlabel
+├── train.py            # tahap belajar: ubah contoh jadi vektor
+├── predict.py          # tahap menebak: cari yang paling mirip
+├── requirements.txt    # daftar pustaka
+└── README.md           # file ini
 ```
 
 ## Cara Menjalankan
 
-1. Install library yang dibutuhkan:
 ```bash
 pip install -r requirements.txt
+python train.py      # belajar dari dataset
+python predict.py    # menebak pesan baru
 ```
 
-2. Latih model:
-```bash
-python train.py
-```
+> Saat pertama kali `train.py` dijalankan, model embedding (~80MB)
+> diunduh otomatis. Agak lama 1–2 menit itu wajar, bukan error.
 
-3. Coba prediksi pesan baru:
-```bash
-python predict.py
-```
+## Konsep dari Modul
 
-## Contoh Penggunaan
-
-```
-Masukkan pesan: Selamat anda menang hadiah 10 juta klik link ini
->> Hasil: SPAM
-
-Masukkan pesan: Halo bro besok jadi kumpul jam berapa
->> Hasil: HAM (bukan spam)
-```
-
-## Teknologi yang Digunakan
-
-- Python 3
-- Pandas — untuk mengolah data
-- Scikit-learn — untuk vectorisasi teks (TF-IDF) dan algoritma Naive Bayes
-- Joblib — untuk menyimpan model yang sudah dilatih
+| Sesi | Konsep | Dipakai di |
+|------|--------|-----------|
+| 6 | Embedding (teks → vektor) | `train.py` |
+| 8 | Cosine Similarity (cari termirip) | `predict.py` |
